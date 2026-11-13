@@ -1,0 +1,60 @@
+plugins {
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+}
+
+base {
+	archivesName = project.archives_base_name
+}
+
+// Cam3's Sawmill jar: looked for in libs/ first, then in the build output of a sibling
+// cam3s-sawmill project. Any version works; the newest file wins; sources jars are ignored.
+def sawmillJar = [file('libs'), file('../cam3s-sawmill/build/libs')]
+		.findAll { it.isDirectory() }
+		.collectMany { dir -> (dir.listFiles() as List).findAll { it.name ==~ /cam3s-sawmill-.+\.jar/ && !it.name.endsWith('-sources.jar') } }
+		.max { it.lastModified() }
+
+if (sawmillJar == null) {
+	throw new GradleException("Cam3's Sawmill jar not found. Build Cam3's Sawmill (./gradlew build), then copy "
+			+ "build/libs/cam3s-sawmill-<version>.jar into this project's libs/ folder, or keep both projects side by side.")
+}
+
+loom {
+	mods {
+		"cam3s_lumberjack" {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+dependencies {
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API: villager trades, points of interest, server events.
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Cam3's Sawmill, found above (see README).
+	modImplementation files(sawmillJar)
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}

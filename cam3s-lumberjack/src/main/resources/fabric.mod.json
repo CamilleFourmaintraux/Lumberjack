@@ -1,0 +1,28 @@
+{
+	"schemaVersion": 1,
+	"id": "cam3s_lumberjack",
+	"version": "${version}",
+	"name": "Cam3's Lumberjack",
+	"description": "Adds the lumberjack villager, whose job site is the sawmill from Cam3's Sawmill, and lumberjack houses in villages.",
+	"authors": [
+		"Camille"
+	],
+	"license": "All-Rights-Reserved",
+	"icon": "assets/cam3s_lumberjack/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.camille.cam3slumberjack.Cam3sLumberjack"
+		]
+	},
+	"mixins": [
+		"cam3s_lumberjack.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.0",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*",
+		"cam3s_sawmill": ">=1.0.0"
+	}
+}
